@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductGrid from '../../components/ProductGrid.astro';
+import { catalogApi } from '../../lib/api/catalog';
+import { ApiError } from '../../lib/api';
+import { pageUrl } from '../../lib/catalog';
+let category = null; let products = null; let failed = false;
+const pageValue = Number(Astro.url.searchParams.get('page'));
+const page = Number.isInteger(pageValue) && pageValue > 0 ? pageValue : 1;
+try { [category, products] = await Promise.all([catalogApi.category(Astro.params.slug ?? ''), catalogApi.products({ category: Astro.params.slug, page, pageSize: 24 })]); }
+catch (error) { if (error instanceof ApiError && error.status === 404) Astro.response.status = 404; else { failed = true; Astro.response.status = 503; } }
+---
+<BaseLayout title={category?.seoTitle ?? (category ? `${category.name} | Categorías` : 'Categoría no encontrada')} description={category?.seoDescription ?? category?.description ?? 'Productos por categoría.'}>
+  <header class="page-header shell"><p class="eyebrow">Categoría</p><h1>{category?.name ?? (failed ? 'No pudimos cargar la categoría' : 'Categoría no encontrada')}</h1>{category?.description && <p>{category.description}</p>}{category?.parentCategory && <a class="text-link" href={`/categorias/${category.parentCategory.slug}`}>Categoría superior: {category.parentCategory.name}</a>}</header>
+  {category?.childCategories.length ? <section class="shell subcategories" aria-labelledby="subcategories-title"><h2 id="subcategories-title">Subcategorías</h2><div>{category.childCategories.map((child) => <a href={`/categorias/${child.slug}`}>{child.name}</a>)}</div></section> : null}
+  <section class="section-compact shell">{category && products ? <><div class="section-heading"><h2>Productos en {category.name}</h2><span>{products.totalItems} productos</span></div><ProductGrid products={products.items} emptyMessage="No hay productos activos en esta categoría exacta." />{products.totalPages > 1 && <nav class="pagination" aria-label="Paginación de productos de la categoría">{products.page > 1 && <a href={pageUrl(Astro.url.searchParams, products.page - 1, Astro.url.pathname)}>Anterior</a>}<span>Página {products.page} de {products.totalPages}</span>{products.page < products.totalPages && <a href={pageUrl(Astro.url.searchParams, products.page + 1, Astro.url.pathname)}>Siguiente</a>}</nav>}</> : <div class="error-state"><p>{failed ? 'Intenta nuevamente más tarde.' : 'La categoría no existe o ya no está publicada.'}</p><a class="button" href="/categorias">Ver todas las categorías</a></div>}</section>
+</BaseLayout>

@@ -1,0 +1,7 @@
+---
+import ProductCard from './ProductCard.astro';
+import type { ProductListItem } from '../types/catalog';
+interface Props { products: ProductListItem[]; emptyMessage?: string }
+const { products, emptyMessage = 'No encontramos productos con estos criterios.' } = Astro.props;
+---
+{products.length ? <div class="product-grid">{products.map((product) => <ProductCard product={product} />)}</div> : <div class="empty-state"><h2>Sin resultados</h2><p>{emptyMessage}</p><a class="button button-secondary" href="/catalogo">Ver todo el catálogo</a></div>}

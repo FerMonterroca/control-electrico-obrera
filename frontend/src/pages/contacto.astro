@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { businessConfig, createWhatsAppUrl } from '../lib/business';
+export const prerender = true;
+---
+<BaseLayout title="Contacto | Control Eléctrico Obrera" description="Contacta a Control Eléctrico Obrera en la colonia Obrera, CDMX.">
+  <header class="page-header shell"><p class="eyebrow">Hablemos</p><h1>Contacto</h1><p>Cuéntanos qué material necesitas. Podemos ayudarte con productos del catálogo y búsquedas especiales.</p></header>
+  <section class="section-compact shell contact-grid"><div class="contact-card"><h2>{businessConfig.name}</h2><dl><div><dt>Ubicación</dt><dd>{businessConfig.location}</dd></div><div><dt>Teléfono y WhatsApp</dt><dd><a href={`tel:+52${businessConfig.whatsapp.slice(2)}`}>{businessConfig.phone}</a></dd></div><div><dt>Solicitudes</dt><dd>{businessConfig.requests24h}</dd></div></dl><a class="button" href={createWhatsAppUrl()} target="_blank" rel="noreferrer">Abrir WhatsApp</a></div><aside class="contact-note"><p class="eyebrow">Formulario</p><h2>Próximamente</h2><p>El formulario de contacto todavía no recibe información. Por ahora, comunícate por teléfono o WhatsApp.</p></aside></section>
+</BaseLayout>

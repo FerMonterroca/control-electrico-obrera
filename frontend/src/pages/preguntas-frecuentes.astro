@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+export const prerender = true;
+const faqs = [
+  ['¿Manejan material eléctrico industrial?', 'Sí. Nos especializamos en material, equipos y componentes eléctricos industriales.'],
+  ['¿Puedo preguntar por un producto que no aparece en el catálogo?', 'Sí. Podemos ayudarte a buscar material especial, equipos antiguos o productos descontinuados.'],
+  ['¿Atienden empresas?', 'Sí. Brindamos atención personalizada a empresas.'],
+  ['¿Facturan?', 'Sí, contamos con facturación.'],
+  ['¿Realizan entregas?', 'Sí, realizamos entregas. Comunícate con nosotros para revisar tu requerimiento.'],
+  ['¿Puedo enviar una solicitud a cualquier hora?', 'Sí. Recibimos solicitudes las 24 horas.'],
+];
+---
+<BaseLayout title="Preguntas frecuentes | Control Eléctrico Obrera" description="Respuestas sobre material eléctrico industrial, empresas, facturación, entregas y solicitudes.">
+  <header class="page-header shell"><p class="eyebrow">Información útil</p><h1>Preguntas frecuentes</h1></header>
+  <section class="section-compact shell faq-list">{faqs.map(([question, answer]) => <details><summary>{question}</summary><p>{answer}</p></details>)}</section>
+</BaseLayout>

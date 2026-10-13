@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { createWhatsAppUrl } from '../lib/business';
+export const prerender = true;
+---
+<BaseLayout title="Atención a empresas | Control Eléctrico Obrera" description="Atención personalizada, entregas, facturación y búsqueda de material eléctrico industrial para empresas.">
+  <header class="page-header shell"><p class="eyebrow">Atención a empresas</p><h1>Material eléctrico para tus requerimientos</h1><p>Apoyamos a empresas con atención directa y búsqueda de componentes para operación, mantenimiento y proyectos.</p><div class="button-row"><a class="button" href={createWhatsAppUrl('Hola, busco atención para mi empresa y material eléctrico industrial.')} target="_blank" rel="noreferrer">Contactar por WhatsApp</a><a class="button button-secondary" href="/catalogo">Explorar catálogo</a></div></header>
+  <section class="section shell"><div class="service-grid"><article><span>01</span><h2>Atención personalizada</h2><p>Revisamos contigo el material y las referencias que necesitas.</p></article><article><span>02</span><h2>Entregas</h2><p>Coordinamos la entrega de los materiales solicitados.</p></article><article><span>03</span><h2>Facturación</h2><p>Contamos con atención para requerimientos de facturación.</p></article><article><span>04</span><h2>Búsqueda de material</h2><p>Ayudamos a localizar piezas especiales, antiguas o descontinuadas.</p></article></div></section>
+</BaseLayout>

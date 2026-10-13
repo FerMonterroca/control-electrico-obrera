@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductGrid from '../../components/ProductGrid.astro';
+import { catalogApi } from '../../lib/api/catalog';
+import { ApiError } from '../../lib/api';
+import { pageUrl } from '../../lib/catalog';
+let brand = null; let products = null; let failed = false;
+const pageValue = Number(Astro.url.searchParams.get('page'));
+const page = Number.isInteger(pageValue) && pageValue > 0 ? pageValue : 1;
+try { [brand, products] = await Promise.all([catalogApi.brand(Astro.params.slug ?? ''), catalogApi.products({ brand: Astro.params.slug, page, pageSize: 24 })]); }
+catch (error) { if (error instanceof ApiError && error.status === 404) Astro.response.status = 404; else { failed = true; Astro.response.status = 503; } }
+---
+<BaseLayout title={brand?.seoTitle ?? (brand ? `${brand.name} | Marcas` : 'Marca no encontrada')} description={brand?.seoDescription ?? brand?.description ?? 'Productos por marca.'}>
+  <header class="page-header shell"><p class="eyebrow">Marca</p><h1>{brand?.name ?? (failed ? 'No pudimos cargar la marca' : 'Marca no encontrada')}</h1>{brand?.description && <p>{brand.description}</p>}</header>
+  <section class="section-compact shell">{brand && products ? <><div class="section-heading"><h2>Productos de {brand.name}</h2><span>{products.totalItems} productos</span></div><ProductGrid products={products.items} emptyMessage="No hay productos activos de esta marca." />{products.totalPages > 1 && <nav class="pagination" aria-label="Paginación de productos de la marca">{products.page > 1 && <a href={pageUrl(Astro.url.searchParams, products.page - 1, Astro.url.pathname)}>Anterior</a>}<span>Página {products.page} de {products.totalPages}</span>{products.page < products.totalPages && <a href={pageUrl(Astro.url.searchParams, products.page + 1, Astro.url.pathname)}>Siguiente</a>}</nav>}</> : <div class="error-state"><p>{failed ? 'Intenta nuevamente más tarde.' : 'La marca no existe o ya no está publicada.'}</p><a class="button" href="/marcas">Ver todas las marcas</a></div>}</section>
+</BaseLayout>

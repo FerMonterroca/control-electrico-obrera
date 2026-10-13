@@ -1,0 +1,12 @@
+---
+import { businessConfig, createWhatsAppUrl } from '../lib/business';
+---
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div><strong>{businessConfig.name}</strong><p>{businessConfig.business}<br />{businessConfig.location}</p></div>
+    <nav aria-label="Navegación del pie"><strong>Explora</strong><a href="/catalogo">Catálogo</a><a href="/categorias">Categorías</a><a href="/marcas">Marcas</a><a href="/nosotros">Nosotros</a></nav>
+    <div><strong>Contacto</strong><a href={`tel:+52${businessConfig.whatsapp.slice(2)}`}>{businessConfig.phone}</a><a href={createWhatsAppUrl()} target="_blank" rel="noreferrer">WhatsApp</a><span>{businessConfig.requests24h}</span></div>
+    <div><strong>Información</strong><span>Privacidad — próximamente</span><span>Términos — próximamente</span></div>
+  </div>
+  <div class="shell footer-bottom">© {new Date().getFullYear()} {businessConfig.name}</div>
+</footer>

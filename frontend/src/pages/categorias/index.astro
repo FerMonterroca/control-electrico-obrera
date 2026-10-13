@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { catalogApi } from '../../lib/api/catalog';
+import type { CategorySummary } from '../../types/catalog';
+let categories: CategorySummary[] = []; let failed = false;
+try { categories = await catalogApi.categories(); } catch { failed = true; Astro.response.status = 503; }
+---
+<BaseLayout title="Categorías | Control Eléctrico Obrera" description="Explora categorías de material eléctrico industrial.">
+  <header class="page-header shell"><p class="eyebrow">Organiza tu búsqueda</p><h1>Categorías</h1><p>Encuentra material por tipo de equipo o aplicación.</p></header>
+  <section class="section-compact shell">{failed ? <div class="error-state"><h2>No pudimos cargar las categorías</h2><p>Intenta nuevamente más tarde.</p></div> : categories.length ? <div class="link-grid">{categories.map((category) => <a href={`/categorias/${category.slug}`}><strong>{category.name}</strong><span>Explorar categoría</span></a>)}</div> : <div class="empty-state"><h2>Sin categorías publicadas</h2><p>Vuelve a consultar próximamente.</p></div>}</section>
+</BaseLayout>

@@ -1,0 +1,13 @@
+---
+import HealthStatus from '../islands/HealthStatus';
+import BaseLayout from '../layouts/BaseLayout.astro';
+export const prerender = true;
+---
+
+<BaseLayout title="Estado del sistema | Control Eléctrico Obrera">
+  <section class="page-header shell"><p class="eyebrow">Diagnóstico</p>
+    <h1>Estado del sistema</h1>
+    <HealthStatus client:load />
+    <a href="/">Volver al inicio</a>
+  </section>
+</BaseLayout>

@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductGrid from '../components/ProductGrid.astro';
+import { catalogApi } from '../lib/api/catalog';
+import { availabilityOptions, pageUrl, parseCatalogQuery } from '../lib/catalog';
+import type { BrandSummary, CategorySummary } from '../types/catalog';
+
+const query = parseCatalogQuery(Astro.url.searchParams);
+let products = null;
+let brands: BrandSummary[] = [];
+let categories: CategorySummary[] = [];
+let apiFailed = false;
+try { [products, brands, categories] = await Promise.all([catalogApi.products(query), catalogApi.brands(), catalogApi.categories()]); }
+catch { apiFailed = true; Astro.response.status = 503; }
+---
+<BaseLayout title="Catálogo | Control Eléctrico Obrera" description="Busca y filtra material eléctrico industrial por marca, categoría y disponibilidad.">
+  <header class="page-header shell"><p class="eyebrow">Material eléctrico industrial</p><h1>Catálogo</h1><p>Busca por nombre, modelo, código o marca.</p></header>
+  <div class="catalog-layout shell section-compact">
+    <aside class="filters"><form action="/catalogo" method="get">
+      <div class="field field-search"><label for="search">Buscar producto</label><input id="search" name="search" type="search" value={query.search} placeholder="Nombre, modelo o código" maxlength="200" /></div>
+      <div class="field"><label for="brand">Marca</label><select id="brand" name="brand"><option value="">Todas las marcas</option>{brands.map((brand) => <option value={brand.slug} selected={query.brand === brand.slug}>{brand.name}</option>)}</select></div>
+      <div class="field"><label for="category">Categoría</label><select id="category" name="category"><option value="">Todas las categorías</option>{categories.map((category) => <option value={category.slug} selected={query.category === category.slug}>{category.name}</option>)}</select></div>
+      <div class="field"><label for="availability">Disponibilidad</label><select id="availability" name="availability"><option value="">Cualquier disponibilidad</option>{availabilityOptions.map(([value, label]) => <option value={value} selected={query.availability === value}>{label}</option>)}</select></div>
+      <div class="field"><label for="sort">Ordenar por</label><select id="sort" name="sort"><option value="newest" selected={!query.sort || query.sort === 'newest'}>Más recientes</option><option value="name-asc" selected={query.sort === 'name-asc'}>Nombre A–Z</option><option value="name-desc" selected={query.sort === 'name-desc'}>Nombre Z–A</option></select></div>
+      <label class="checkbox"><input type="checkbox" name="featured" value="true" checked={query.featured === true} /> Sólo destacados</label>
+      <div class="filter-actions"><button class="button" type="submit">Aplicar filtros</button><a href="/catalogo">Limpiar</a></div>
+    </form></aside>
+    <section class="catalog-results" aria-labelledby="results-title"><div class="results-bar"><h2 id="results-title">Resultados</h2>{products && <p>{products.totalItems} {products.totalItems === 1 ? 'producto' : 'productos'}</p>}</div>
+      {apiFailed ? <div class="error-state" role="alert"><h2>No pudimos cargar el catálogo</h2><p>Intenta nuevamente en unos minutos o contáctanos para ayudarte.</p><a class="button button-secondary" href={Astro.url.pathname + Astro.url.search}>Reintentar</a></div> : products && <><ProductGrid products={products.items} />{products.totalPages > 1 && <nav class="pagination" aria-label="Paginación del catálogo">{products.page > 1 && <a href={pageUrl(Astro.url.searchParams, products.page - 1)}>Anterior</a>}<span>Página {products.page} de {products.totalPages}</span>{products.page < products.totalPages && <a href={pageUrl(Astro.url.searchParams, products.page + 1)}>Siguiente</a>}</nav>}</>}
+    </section>
+  </div>
+</BaseLayout>

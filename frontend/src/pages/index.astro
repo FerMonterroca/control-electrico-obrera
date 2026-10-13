@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductGrid from '../components/ProductGrid.astro';
+import { catalogApi } from '../lib/api/catalog';
+import { createWhatsAppUrl } from '../lib/business';
+import type { CategorySummary, ProductListItem } from '../types/catalog';
+
+let categories: CategorySummary[] = [];
+let featured: ProductListItem[] = [];
+let apiFailed = false;
+try {
+  const [categoryResult, productResult] = await Promise.all([
+    catalogApi.categories(),
+    catalogApi.products({ featured: true, pageSize: 6 }),
+  ]);
+  categories = categoryResult;
+  featured = productResult.items;
+} catch { apiFailed = true; Astro.response.status = 503; }
+---
+<BaseLayout title="Material eléctrico industrial en CDMX | Control Eléctrico Obrera" description="Explora material, equipos y componentes eléctricos industriales en Control Eléctrico Obrera, CDMX.">
+  <section class="hero"><div class="shell hero-grid"><div>
+    <p class="eyebrow">Obrera · Ciudad de México</p>
+    <h1>Material eléctrico industrial en CDMX</h1>
+    <p class="hero-copy">Encuentra material, equipos y componentes eléctricos o solicita ayuda para localizar piezas difíciles de conseguir.</p>
+    <div class="button-row"><a class="button" href="/catalogo">Ver catálogo</a><a class="button button-secondary" href={createWhatsAppUrl()} target="_blank" rel="noreferrer">Contactar por WhatsApp</a></div>
+  </div><aside class="hero-panel" aria-label="Servicios principales"><span class="panel-number">01</span><h2>Soluciones para industria y mantenimiento</h2><ul><li>Material de control y protección</li><li>Equipos y componentes eléctricos</li><li>Búsqueda de piezas especiales</li></ul></aside></div></section>
+  <section class="section shell"><div class="section-heading"><div><p class="eyebrow">Explora por aplicación</p><h2>Categorías</h2></div><a class="text-link" href="/categorias">Ver todas</a></div>
+    {apiFailed ? <div class="notice" role="status">No pudimos cargar las categorías en este momento.</div> : categories.length ? <div class="category-grid">{categories.slice(0, 8).map((category, index) => <a class="category-card" href={`/categorias/${category.slug}`}><span class="category-index">{String(index + 1).padStart(2, '0')}</span><strong>{category.name}</strong><span>Explorar productos</span></a>)}</div> : <div class="empty-state"><p>Aún no hay categorías publicadas.</p></div>}
+  </section>
+  <section class="section section-muted"><div class="shell"><div class="section-heading"><div><p class="eyebrow">Selección del catálogo</p><h2>Productos destacados</h2></div><a class="text-link" href="/catalogo?featured=true">Ver destacados</a></div>
+    {apiFailed ? <div class="notice" role="status">No pudimos cargar los productos en este momento.</div> : <ProductGrid products={featured} emptyMessage="Aún no hay productos destacados." />}
+  </div></section>
+  <section class="section shell split-feature"><div class="feature-block feature-dark"><p class="eyebrow">Búsqueda especializada</p><h2>¿No encuentras el equipo que buscas?</h2><p>También podemos ayudarte a localizar material industrial, piezas especiales, equipos antiguos o productos descontinuados.</p><a class="button button-light" href="/contacto">Cuéntanos qué necesitas</a></div><div class="feature-block"><p class="eyebrow">Atención a empresas</p><h2>Un punto de contacto para tus requerimientos</h2><ul class="check-list"><li>Atención personalizada</li><li>Entregas</li><li>Facturación</li><li>Búsqueda de materiales</li></ul><a class="text-link" href="/empresas">Ver atención a empresas</a></div></section>
+  <section class="section shell experience"><p class="eyebrow">Conocimiento técnico</p><h2>Experiencia en material eléctrico industrial</h2><p>Atención desde la colonia Obrera para identificar y localizar el material que requiere cada proyecto.</p></section>
+</BaseLayout>

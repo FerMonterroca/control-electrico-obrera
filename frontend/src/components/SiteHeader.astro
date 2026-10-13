@@ -1,0 +1,27 @@
+---
+import { businessConfig, createWhatsAppUrl } from '../lib/business';
+const currentPath = Astro.url.pathname;
+const links = [
+  ['/', 'Inicio'], ['/catalogo', 'Catálogo'], ['/categorias', 'Categorías'],
+  ['/marcas', 'Marcas'], ['/empresas', 'Empresas'], ['/contacto', 'Contacto'],
+];
+---
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="wordmark" href="/" aria-label={`${businessConfig.name}, inicio`}>
+      <span class="wordmark-mark" aria-hidden="true">CE</span>
+      <span>{businessConfig.name}</span>
+    </a>
+    <details class="mobile-nav">
+      <summary aria-label="Abrir navegación"><span aria-hidden="true"></span> Menú</summary>
+      <nav aria-label="Navegación móvil">
+        {links.map(([href, label]) => <a href={href} aria-current={currentPath === href ? 'page' : undefined}>{label}</a>)}
+        <a class="button button-small" href={createWhatsAppUrl()} target="_blank" rel="noreferrer">WhatsApp</a>
+      </nav>
+    </details>
+    <nav class="desktop-nav" aria-label="Navegación principal">
+      {links.map(([href, label]) => <a href={href} aria-current={currentPath === href ? 'page' : undefined}>{label}</a>)}
+    </nav>
+    <a class="button button-small header-cta" href={createWhatsAppUrl()} target="_blank" rel="noreferrer">WhatsApp</a>
+  </div>
+</header>

@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { catalogApi } from '../../lib/api/catalog';
+import { ApiError } from '../../lib/api';
+import { availabilityLabels, resolveMediaUrl } from '../../lib/catalog';
+import { createWhatsAppUrl } from '../../lib/business';
+
+let product = null;
+let loadError = false;
+try { product = await catalogApi.product(Astro.params.slug ?? ''); }
+catch (error) { if (error instanceof ApiError && error.status === 404) Astro.response.status = 404; else { loadError = true; Astro.response.status = 503; } }
+const title = product?.seoTitle ?? (product ? `${product.name} | Control Eléctrico Obrera` : 'Producto no encontrado | Control Eléctrico Obrera');
+const imageUrl = product ? resolveMediaUrl(product.images.find((image) => image.isPrimary)?.storageKey ?? product.images[0]?.storageKey) : null;
+---
+<BaseLayout title={title} description={product?.seoDescription ?? product?.shortDescription ?? 'Detalle de producto de material eléctrico industrial.'}>
+  {!product ? <section class="page-header shell error-state"><p class="eyebrow">Catálogo</p><h1>{loadError ? 'No pudimos cargar el producto' : 'Producto no encontrado'}</h1><p>{loadError ? 'Intenta nuevamente más tarde.' : 'El producto no existe o ya no está publicado.'}</p><a class="button" href="/catalogo">Volver al catálogo</a></section> : <>
+    <nav class="breadcrumbs shell" aria-label="Migas de pan"><a href="/catalogo">Catálogo</a><span>/</span><a href={`/categorias/${product.category.slug}`}>{product.category.name}</a><span>/</span><span aria-current="page">{product.name}</span></nav>
+    <article class="product-detail shell"><div class="product-gallery">{imageUrl ? <img src={imageUrl} alt={product.images[0]?.altText ?? product.name} /> : <div class="media-placeholder media-placeholder-large"><span>CE</span><small>Imagen próximamente</small></div>}</div><div class="product-summary">
+      <p class="eyebrow">{product.brand?.name ?? product.category.name}</p><h1>{product.name}</h1>{product.shortDescription && <p class="lead">{product.shortDescription}</p>}
+      <span class={`availability availability-${product.availabilityStatus.toLowerCase()}`}>{availabilityLabels[product.availabilityStatus]}</span>
+      <dl class="detail-facts">{product.brand && <div><dt>Marca</dt><dd><a href={`/marcas/${product.brand.slug}`}>{product.brand.name}</a></dd></div>}<div><dt>Categoría</dt><dd><a href={`/categorias/${product.category.slug}`}>{product.category.name}</a></dd></div>{product.model && <div><dt>Modelo</dt><dd>{product.model}</dd></div>}{product.skuOrCode && <div><dt>Código / SKU</dt><dd>{product.skuOrCode}</dd></div>}<div><dt>Unidad</dt><dd>{product.unit}</dd></div></dl>
+      <div class="button-row"><a class="button" href={createWhatsAppUrl(`Hola, quiero solicitar información sobre ${product.name}${product.model ? `, modelo ${product.model}` : ''}.`)} target="_blank" rel="noreferrer">Solicitar cotización</a><a class="button button-secondary" href="/contacto">Contacto</a></div><p class="helper-text">La solicitud se atiende por contacto directo; aún no se guarda como cotización en el sitio.</p>
+    </div></article>
+    {(product.description || product.specifications.length > 0) && <section class="section section-muted"><div class="shell detail-columns">{product.description && <div><p class="eyebrow">Información</p><h2>Descripción</h2><p>{product.description}</p></div>}{product.specifications.length > 0 && <div><p class="eyebrow">Ficha técnica</p><h2>Especificaciones</h2><dl class="spec-table">{product.specifications.map((spec) => <div><dt>{spec.name}</dt><dd>{spec.value}{spec.unit ? ` ${spec.unit}` : ''}</dd></div>)}</dl></div>}</div></section>}
+  </>}
+</BaseLayout>

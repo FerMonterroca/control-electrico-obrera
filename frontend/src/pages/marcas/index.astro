@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { catalogApi } from '../../lib/api/catalog';
+import type { BrandSummary } from '../../types/catalog';
+let brands: BrandSummary[] = []; let failed = false;
+try { brands = await catalogApi.brands(); } catch { failed = true; Astro.response.status = 503; }
+---
+<BaseLayout title="Marcas | Control Eléctrico Obrera" description="Consulta las marcas activas del catálogo de material eléctrico industrial.">
+  <header class="page-header shell"><p class="eyebrow">Fabricantes</p><h1>Marcas</h1><p>Explora el catálogo por marca.</p></header>
+  <section class="section-compact shell">{failed ? <div class="error-state"><h2>No pudimos cargar las marcas</h2><p>Intenta nuevamente más tarde.</p></div> : brands.length ? <div class="link-grid">{brands.map((brand) => <a href={`/marcas/${brand.slug}`}><strong>{brand.name}</strong><span>Ver productos</span></a>)}</div> : <div class="empty-state"><h2>Sin marcas publicadas</h2><p>Vuelve a consultar próximamente.</p></div>}</section>
+</BaseLayout>

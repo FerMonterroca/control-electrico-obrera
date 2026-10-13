@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="backend/ControlElectricoObrera.Api.csproj" />
+  <Project Path="backend.tests/ControlElectricoObrera.Api.Tests.csproj" />
+</Solution>
